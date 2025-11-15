@@ -1,16 +1,16 @@
 
 struct Object {
-  objType: u32, // 0=box,1=sphere,2=torus,3=plane
+  objType: u32,
   position: vec3<f32>,
   scale: vec3<f32>,
   rotation: vec3<f32>,
-  mat_id: f32,
+  mat_id: f32,      
 };
-
 struct Scene {
-  objects: array<Object, 50>, // Max 50 objects
-  numObjects: u32, // number of objects in the scene (to avoid iterating over empty slots)
-}
+  numObjects: u32,
+  _padding: vec3<u32>,
+  objects: array<Object, 20>,
+};
 
 @group(0) @binding(1)
 var<storage, read> myScene: Scene;
@@ -140,7 +140,7 @@ fn op_union(d1: f32, d2: f32) -> f32 {
 }
 
 fn op_subtract(d1: f32, d2: f32) -> f32 {
-  return max(-d1, d2);
+  return max(d1, -d2);
 }
 
 fn op_intersect(d1: f32, d2: f32) -> f32 {
@@ -173,11 +173,11 @@ fn get_dist(p: vec3<f32>) -> vec2<f32> {
     res = op_smooth_union_v3(res, vec2<f32>(plane_dist, MAT_Ground), 0.4);
 
     // Loop over objects
-    for (var i = 0u; i < myScene.numObjects; i = i + 1u) {
-        let obj = myScene.objects[i];
-        let d = sd_select(p - obj.position, obj);
-        res = op_smooth_union_v3(res, vec2<f32>(d, obj.mat_id), 0.4);
-    }
+  for (var i = 0u; i < min(myScene.numObjects, 20u); i = i + 1u) {
+      let obj = myScene.objects[i];
+      let d = sd_select(p - obj.position, obj);
+      res = op_smooth_union_v3(res, vec2<f32>(d, obj.mat_id), 0.4);
+  }
 
     return res;
 }

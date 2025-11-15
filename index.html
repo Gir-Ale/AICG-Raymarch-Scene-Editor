@@ -327,6 +327,7 @@
       </div>
     </div>
     <script>
+      // shaders: { [filename: string]: { content: string, name: string, description: string } }
       const shaders = {};
       let fallbackShader = `// Fragment shader - runs once per pixel
 @fragment
@@ -388,7 +389,7 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
       let objectBuffer;  
       let objectBufferData; 
       let shapesDirty = true;
-
+      // Shortcut for document.getElementById
       const $ = (id) => document.getElementById(id);
       const canvas = $("canvas");
       const errorMsg = $("error-message");
@@ -400,7 +401,7 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
       const editorContainer = $("editor-container");
       const shaderSelector = $("shader-selector");
 
-      const MAX_OBJECTS = 50;
+      const MAX_OBJECTS = 20;
       const FLOATS_PER_OBJECT = 16;
       const EXTRA_FLOATS = 4;
       const TOTAL_FLOATS = MAX_OBJECTS * FLOATS_PER_OBJECT + EXTRA_FLOATS;
@@ -450,7 +451,7 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
         .join("");
 
       const myScene = {
-        objects: new Array(50).fill(null).map(() => ({
+        objects: new Array(MAX_OBJECTS).fill(null).map(() => ({
           objType: 0,
           position: [0, 0, 0],
           scale: [1, 1, 1],
@@ -507,8 +508,12 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
 
         objectBufferData = new Float32Array(TOTAL_FLOATS);
 
+        // Compute byte size and align to 256 bytes to avoid platform-specific issues
+        const objectBufferSize = TOTAL_FLOATS * 4;
+        const alignedObjectBufferSize = Math.ceil(objectBufferSize / 256) * 256;
+
         objectBuffer = device.createBuffer({
-            size: TOTAL_FLOATS * 4,
+            size: alignedObjectBufferSize,
             usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
         });
 
@@ -582,7 +587,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
 
       function updateMySceneFromShapes() {
         myScene.numObjects = shapes.length;
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < MAX_OBJECTS; i++) {
           if (i < shapes.length) {
             const s = shapes[i];
             myScene.objects[i] = {
@@ -610,40 +615,48 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
       }
 
       function fillObjectBufferOnce() {
-        // Clear buffer
-        objectBufferData.fill(0);
+          // Clear buffer
+          objectBufferData.fill(0);
 
-        // First vec4 = numObjects
-        objectBufferData[0] = myScene.numObjects;
+          // First vec4 = numObjects
+          objectBufferData[0] = myScene.numObjects;
 
-        // Write objects
-        for (let i = 0; i < shapes.length; i++) {
-          const s = shapes[i];
-          const idx = 4 + i * FLOATS_PER_OBJECT;
+          // Loop over objects
+          for (let i = 0; i < MAX_OBJECTS; i++) {
+              const idx = 4 + i * 16; // 16 floats per object
 
-          objectBufferData[idx + 0] = shapeTypeToInt(s.type); // objType
-          objectBufferData[idx + 1] = 0;
-          objectBufferData[idx + 2] = 0;
-          objectBufferData[idx + 3] = 0;
+              if (i < myScene.numObjects) {
+                  const s = myScene.objects[i];
 
-          objectBufferData[idx + 4] = s.x;
-          objectBufferData[idx + 5] = s.y;
-          objectBufferData[idx + 6] = s.z;
-          objectBufferData[idx + 7] = 0;
+                  // === Object struct alignment ===
+                  // u32 objType + 3x padding
+                  objectBufferData[idx + 0] = s.objType;
+                  objectBufferData[idx + 1] = 0; // padding
+                  objectBufferData[idx + 2] = 0; // padding
+                  objectBufferData[idx + 3] = 0; // padding
 
-          objectBufferData[idx + 8]  = s.size;
-          objectBufferData[idx + 9]  = s.size;
-          objectBufferData[idx + 10] = s.size;
-          objectBufferData[idx + 11] = 0;
+                  // vec3<f32> position + 1 float padding
+                  objectBufferData[idx + 4] = s.position[0];
+                  objectBufferData[idx + 5] = s.position[1];
+                  objectBufferData[idx + 6] = s.position[2];
+                  objectBufferData[idx + 7] = 0; // padding
 
-          objectBufferData[idx + 12] = s.rotX;
-          objectBufferData[idx + 13] = s.rotY;
-          objectBufferData[idx + 14] = s.rotZ;
-          objectBufferData[idx + 15] = s.material;
-        }
+                  // vec3<f32> scale + 1 float padding
+                  objectBufferData[idx + 8]  = s.scale[0];
+                  objectBufferData[idx + 9]  = s.scale[1];
+                  objectBufferData[idx + 10] = s.scale[2];
+                  objectBufferData[idx + 11] = 0; // padding
 
-        // Upload to GPU once
-        device.queue.writeBuffer(objectBuffer, 0, objectBufferData);
+                  // vec3<f32> rotation + mat_id
+                  objectBufferData[idx + 12] = s.rotation[0];
+                  objectBufferData[idx + 13] = s.rotation[1];
+                  objectBufferData[idx + 14] = s.rotation[2];
+                  objectBufferData[idx + 15] = s.mat_id;
+              }
+          }
+
+          // Upload to GPU
+          device.queue.writeBuffer(objectBuffer, 0, objectBufferData);
       }
 
 
@@ -716,8 +729,16 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
 
       function resizeCanvas() {
         const container = $("canvas-container");
+        if (!container) return;
         const dpr = devicePixelRatio || 1;
-        canvas.width = container.clientWidth * dpr;
+        // Prevent creating extremely large canvases that can exhaust GPU memory or crash the browser.
+        const MAX_DIMENSION = 4096; // adjust if you know your target device supports larger sizes
+        const width = Math.min(container.clientWidth * dpr, MAX_DIMENSION);
+        const height = Math.min(container.clientHeight * dpr, MAX_DIMENSION);
+        canvas.width = Math.max(1, Math.floor(width));
+        canvas.height = Math.max(1, Math.floor(height));
+        canvas.style.width = container.clientWidth + "px";
+        canvas.style.height = container.clientHeight + "px";
         canvas.height = container.clientHeight * dpr;
         canvas.style.width = container.clientWidth + "px";
         canvas.style.height = container.clientHeight + "px";
@@ -834,7 +855,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         }
 
         // If we have a manifest, use it
-        const shaderList = manifest?.shaders
+        const shaderList = manifest?.shaders ?? [];
 
         // Load each shader file
         for (const shaderInfo of shaderList) {
@@ -882,6 +903,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
             fallbackShader = shaders[firstShader].content;
             editor.setValue(fallbackShader);
             shaderSelector.value = firstShader;
+            compileShader(fallbackShader);
           }
         } else {
           console.log("No shaders loaded, using fallback");
@@ -941,7 +963,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         const newShape = {
           type,
           size: parseFloat(propInputs.size.value) || 1,
-          material: parseFloat(propInputs.material.value) || 1,
+          material: parseFloat(propInputs.material.value) || 0,
           x: parseFloat(propInputs.x.value) || 0,
           y: parseFloat(propInputs.y.value) || 0,
           z: parseFloat(propInputs.z.value) || 0,
@@ -963,7 +985,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
             if (["size", "x", "y", "z", "rotX", "rotY", "rotZ"].includes(key)) {
               shapes[selectedIndex][key] = parseFloat(propInputs[key].value) || 0;
             } else if (key === "material") {
-              shapes[selectedIndex][key] = isNaN(propInputs[key].value) ? propInputs[key].value : parseFloat(propInputs[key].value);
+              shapes[selectedIndex][key] = parseFloat(propInputs[key].value) || 0;
             } else {
               shapes[selectedIndex][key] = propInputs[key].value;
             }
