@@ -1,0 +1,14 @@
+{
+  "shaders": [
+    {
+      "file": "raymarch_editor.wgsl",
+      "name": "Ray Marching - editor",
+      "description": "a simple raymarching editor"
+    },
+    {
+      "file": "raymarch_basic.wgsl",
+      "name": "Ray Marching - Basic",
+      "description": "Introduction to ray marching with simple primitives, CSG operations, and basic lighting"
+    }
+  ]
+}
