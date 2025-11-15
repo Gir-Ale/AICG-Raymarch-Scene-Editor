@@ -143,6 +143,7 @@
           </svg>
         </button>
       </div>
+
       <div
         id="editor-container"
         class="flex flex-col bg-gray-800 portrait:w-full portrait:h-1/2 landscape:w-1/2 landscape:h-full"
@@ -183,22 +184,21 @@
               <option value="">-- Select Shader --</option>
             </select>
           </div>
-          <div
-            class="w-full h-px"
-            style="background-color: #665c54; opacity: 0.5"
-          ></div>
+
+          <div class="w-full h-px" style="background-color: #665c54; opacity: 0.5"></div>
+
           <div class="flex items-center justify-between gap-3">
             <div class="flex flex-wrap items-center gap-3">
-              <span class="text-sm font-normal whitespace-nowrap"
-                ><span style="opacity: 0.5">FPS:</span>
+              <span class="text-sm font-normal whitespace-nowrap">
+                <span style="opacity: 0.5">FPS:</span>
                 <span id="fps">0</span>
                 <span style="opacity: 0.5; margin-left: 8px">Frame:</span>
-                <span id="frame-time">0ms</span></span
-              >
-              <span class="text-sm font-normal whitespace-nowrap"
-                ><span style="opacity: 0.5">Compile:</span>
-                <span id="compile-time"></span
-              ></span>
+                <span id="frame-time">0ms</span>
+              </span>
+              <span class="text-sm font-normal whitespace-nowrap">
+                <span style="opacity: 0.5">Compile:</span>
+                <span id="compile-time"></span>
+              </span>
             </div>
             <button
               id="compile-btn"
@@ -209,10 +209,12 @@
             </button>
           </div>
         </div>
+
         <div class="flex flex-1 overflow-hidden">
           <div id="code-editor-container" class="flex-1 overflow-hidden">
             <textarea id="code-editor"></textarea>
           </div>
+
           <div
             id="uniforms-panel"
             class="flex transition-all duration-300"
@@ -225,112 +227,101 @@
             >
               <span id="toggle-arrow">▶</span>
             </div>
+
             <div
               id="panel-content"
               class="flex-1 flex flex-col overflow-hidden"
               style="background: #1d2021"
             >
               <div
-                class="p-2 font-bold flex items-center gap-2"
+                class="p-2 font-bold flex flex-col gap-3"
                 style="color: #ebdbb2; border-bottom: 1px solid #3c3836"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <rect x="3" y="3" width="7" height="7" />
-                  <rect x="14" y="3" width="7" height="7" />
-                  <rect x="14" y="14" width="7" height="7" />
-                  <rect x="3" y="14" width="7" height="7" />
-                </svg>
-                <span>Uniforms</span>
+                <div class="flex items-center gap-2">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                  </svg>
+
+                  <select
+                    id="shape-select"
+                    class="flex-1 bg-gray-700 text-white rounded-lg px-2 py-1"
+                  >
+                    <option value="cube">Cube</option>
+                    <option value="sphere">Sphere</option>
+                    <option value="cylinder">Cylinder</option>
+                    <option value="plane">Plane</option>
+                  </select>
+
+                  <button
+                    id="build-btn"
+                    class="bg-blue-600 hover:bg-blue-500 rounded-lg px-3 py-1 text-sm font-semibold"
+                  >
+                    Build
+                  </button>
+                </div>
+
+                <!-- Shape List -->
+                <div>
+                  <label class="block text-sm font-semibold mb-1">Shapes List</label>
+                  <ul
+                    id="shape-list"
+                    class="bg-gray-700 rounded-lg p-2 max-h-28 overflow-y-auto text-sm space-y-1"
+                  ></ul>
+                </div>
+
+                <!-- Shape Properties -->
+                <div id="shape-properties" class="mt-3 border-t border-gray-600 pt-3">
+                  <h3 class="text-sm font-semibold mb-2">Properties</h3>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="text-xs col-span-1">Size</label>
+                    <input
+                      id="prop-size"
+                      type="number"
+                      class="bg-gray-700 rounded px-2 py-1 text-xs col-span-1"
+                      value="1"
+                    />
+
+                    <label class="text-xs">Rot X</label>
+                    <input id="prop-rotX" type="number" class="bg-gray-700 rounded px-2 py-1 text-xs" value="0" />
+                    <label class="text-xs">Rot Y</label>
+                    <input id="prop-rotY" type="number" class="bg-gray-700 rounded px-2 py-1 text-xs" value="0" />
+                    <label class="text-xs">Rot Z</label>
+                    <input id="prop-rotZ" type="number" class="bg-gray-700 rounded px-2 py-1 text-xs" value="0" />
+
+                    <label class="text-xs col-span-1">Material</label>
+                    <input
+                      id="prop-material"
+                      type="text"
+                      class="bg-gray-700 rounded px-2 py-1 text-xs col-span-1"
+                      value="1"
+                    />
+
+                    <label class="text-xs">X</label>
+                    <input id="prop-x" type="number" class="bg-gray-700 rounded px-2 py-1 text-xs" value="0" />
+                    <label class="text-xs">Y</label>
+                    <input id="prop-y" type="number" class="bg-gray-700 rounded px-2 py-1 text-xs" value="0" />
+                    <label class="text-xs">Z</label>
+                    <input id="prop-z" type="number" class="bg-gray-700 rounded px-2 py-1 text-xs" value="0" />
+                  </div>
+                </div>
               </div>
+
               <div class="flex-1 overflow-y-auto overflow-x-hidden p-3">
                 <table class="w-full text-sm" style="color: #ebdbb2">
                   <tbody id="uniforms-table"></tbody>
                 </table>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-      <div
-        id="control-panel"
-        class="absolute bottom-4 left-4 bg-gray-800/80 backdrop-blur-md p-4 rounded-2xl shadow-lg w-60 border border-gray-700"
-      >
-        <h2 class="text-lg font-bold mb-2">Shape Builder</h2>
-        <div class="flex gap-2 mb-3">
-          <select
-            id="shape-select"
-            class="flex-1 bg-gray-700 text-white rounded-lg px-2 py-1"
-          >
-            <option value="cube">Cube</option>
-            <option value="sphere">Sphere</option>
-            <option value="cylinder">Cylinder</option>
-            <option value="plane">Plane</option>
-          </select>
-          <button
-            id="build-btn"
-            class="bg-blue-600 hover:bg-blue-500 rounded-lg px-3 py-1 text-sm font-semibold"
-          >
-            Build
-          </button>
-        </div>
-
-        <!-- Shape List -->
-        <div>
-          <label class="block text-sm font-semibold mb-1">Shapes List</label>
-          <ul
-            id="shape-list"
-            class="bg-gray-700 rounded-lg p-2 max-h-28 overflow-y-auto text-sm space-y-1"
-          ></ul>
-        </div>
-
-        <!-- Shape Properties -->
-        <div id="shape-properties" class="mt-3 border-t border-gray-600 pt-3">
-          <h3 class="text-sm font-semibold mb-2">Properties</h3>
-          <div class="grid grid-cols-2 gap-2">
-            <label class="text-xs col-span-1">Size</label>
-            <input
-              id="prop-size"
-              type="number"
-              class="bg-gray-700 rounded px-2 py-1 text-xs col-span-1"
-              value="1"
-            />
-
-            <label class="text-xs col-span-1">Material</label>
-            <input
-              id="prop-material"
-              type="text"
-              class="bg-gray-700 rounded px-2 py-1 text-xs col-span-1"
-              value="1"
-            />
-
-            <label class="text-xs">X</label>
-            <input
-              id="prop-x"
-              type="number"
-              class="bg-gray-700 rounded px-2 py-1 text-xs"
-              value="0"
-            />
-            <label class="text-xs">Y</label>
-            <input
-              id="prop-y"
-              type="number"
-              class="bg-gray-700 rounded px-2 py-1 text-xs"
-              value="0"
-            />
-            <label class="text-xs">Z</label>
-            <input
-              id="prop-z"
-              type="number"
-              class="bg-gray-700 rounded px-2 py-1 text-xs"
-              value="0"
-            />
           </div>
         </div>
       </div>
@@ -394,9 +385,9 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
       let mouseDown = false;
       let isPanelOpen = true;
       let isFullscreen = false;
-
-      let GPUBuffer;
-      let GPUBindGroup;
+      let objectBuffer;  
+      let objectBufferData; 
+      let shapesDirty = true;
 
       const $ = (id) => document.getElementById(id);
       const canvas = $("canvas");
@@ -408,7 +399,12 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
       const canvasContainer = $("canvas-container");
       const editorContainer = $("editor-container");
       const shaderSelector = $("shader-selector");
-      
+
+      const MAX_OBJECTS = 50;
+      const FLOATS_PER_OBJECT = 16;
+      const EXTRA_FLOATS = 4;
+      const TOTAL_FLOATS = MAX_OBJECTS * FLOATS_PER_OBJECT + EXTRA_FLOATS;
+
       const uniforms = {
         resolution: {
           label: "resolution",
@@ -480,7 +476,7 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
         isPanelOpen = !isPanelOpen;
         $("uniforms-panel").style.width = isPanelOpen ? "250px" : "24px";
         $("panel-content").style.display = isPanelOpen ? "flex" : "none";
-        $("toggle-arrow").textContent = isPanelOpen ? "▶" : "◀";
+        $("toggle-arrow").textContent = isPanelOpen ? "◀" : "▶";
       };
 
       const vertexShader = `@vertex
@@ -509,16 +505,13 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
           usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
 
+        objectBufferData = new Float32Array(TOTAL_FLOATS);
 
-        const objectCount = 50;
-        const vec4Size = 16;
-        const objectsPerBuffer = 4;
-        const GPUBufferSize = objectCount * objectsPerBuffer * vec4Size + 16;
-
-        GPUBuffer = device.createBuffer({
-          size: GPUBufferSize,
-          usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+        objectBuffer = device.createBuffer({
+            size: TOTAL_FLOATS * 4,
+            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
         });
+
         await compileShader(fallbackShader);
         return true;
       }
@@ -574,10 +567,11 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
             primitive: { topology: "triangle-list" },
           });
           bindGroup = device.createBindGroup({
-            layout: bindGroupLayout,
-            entries: [{ binding: 0, resource: { buffer: uniformBuffer } }
-            , { binding: 1, resource: { buffer: GPUBuffer } }
-            ],
+              layout: pipeline.getBindGroupLayout(0),
+              entries: [
+                { binding: 0, resource: { buffer: uniformBuffer }},
+                { binding: 1, resource: { buffer: objectBuffer }},
+              ],
           });
           $("compile-time").textContent = `${(performance.now() - start).toFixed(2)}ms`; // prettier-ignore
         } catch (e) {
@@ -615,60 +609,71 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         }
       }
 
+      function fillObjectBufferOnce() {
+        // Clear buffer
+        objectBufferData.fill(0);
+
+        // First vec4 = numObjects
+        objectBufferData[0] = myScene.numObjects;
+
+        // Write objects
+        for (let i = 0; i < shapes.length; i++) {
+          const s = shapes[i];
+          const idx = 4 + i * FLOATS_PER_OBJECT;
+
+          objectBufferData[idx + 0] = shapeTypeToInt(s.type); // objType
+          objectBufferData[idx + 1] = 0;
+          objectBufferData[idx + 2] = 0;
+          objectBufferData[idx + 3] = 0;
+
+          objectBufferData[idx + 4] = s.x;
+          objectBufferData[idx + 5] = s.y;
+          objectBufferData[idx + 6] = s.z;
+          objectBufferData[idx + 7] = 0;
+
+          objectBufferData[idx + 8]  = s.size;
+          objectBufferData[idx + 9]  = s.size;
+          objectBufferData[idx + 10] = s.size;
+          objectBufferData[idx + 11] = 0;
+
+          objectBufferData[idx + 12] = s.rotX;
+          objectBufferData[idx + 13] = s.rotY;
+          objectBufferData[idx + 14] = s.rotZ;
+          objectBufferData[idx + 15] = s.material;
+        }
+
+        // Upload to GPU once
+        device.queue.writeBuffer(objectBuffer, 0, objectBufferData);
+      }
+
+
+      // Preallocate uniform data buffer
+      const uniformData = new Float32Array(12);
+
       function render() {
         if (!pipeline) return;
         const currentTime = performance.now();
         const deltaTime = (currentTime - lastFrameTime) / 1000;
         const elapsedTime = (currentTime - startTime) / 1000;
-        const data = [canvas.width, canvas.height, elapsedTime, deltaTime, mouseX, mouseY, mouseDown ? 1 : 0, 0, frameCount, 0, 0, 0]; // prettier-ignore
-        device.queue.writeBuffer(uniformBuffer, 0, new Float32Array(data));
+        uniformData[0] = canvas.width;
+        uniformData[1] = canvas.height;
+        uniformData[2] = elapsedTime;
+        uniformData[3] = deltaTime;
+        uniformData[4] = mouseX;
+        uniformData[5] = mouseY;
+        uniformData[6] = mouseDown ? 1 : 0;
+        uniformData[7] = 0;
+        uniformData[8] = frameCount;
+        uniformData[9] = 0;
+        uniformData[10] = 0;
+        uniformData[11] = 0;
+        device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
-        updateMySceneFromShapes();
-
-        const TOTAL_FLOATS = 50 * 16 + 4;       // 50 objects + numObjects + padding
-        const buffer = new Float32Array(TOTAL_FLOATS);
-
-        for (let i = 0; i < 50; i++) {
-          const obj = myScene.objects[i] || {
-            objType: 0,
-            position: [0,0,0],
-            scale: [1,1,1],
-            rotation: [0,0,0],
-            mat_id: 0
-          };
-
-          const o = i * 16;
-
-          // vec4 #1   (objType + padding)
-          buffer[o + 0] = obj.objType;
-          buffer[o + 1] = 0;
-          buffer[o + 2] = 0;
-          buffer[o + 3] = 0;
-
-          // vec4 #2   (position)
-          buffer[o + 4] = obj.position[0];
-          buffer[o + 5] = obj.position[1];
-          buffer[o + 6] = obj.position[2];
-          buffer[o + 7] = 0;
-
-          // vec4 #3   (scale)
-          buffer[o + 8] = obj.scale[0];
-          buffer[o + 9] = obj.scale[1];
-          buffer[o +10] = obj.scale[2];
-          buffer[o +11] = 0;
-
-          // vec4 #4  (rotation + mat_id)
-          buffer[o +12] = obj.rotation[0];
-          buffer[o +13] = obj.rotation[1];
-          buffer[o +14] = obj.rotation[2];
-          buffer[o +15] = obj.mat_id;
+        if (shapesDirty) {
+          updateMySceneFromShapes();
+          fillObjectBufferOnce();
+          shapesDirty = false;
         }
-
-        // Write numObjects at the end
-        buffer[50 * 16] = myScene.numObjects;
-
-        // Upload
-        device.queue.writeBuffer(GPUBuffer, 0, buffer);
 
         const val = uniforms.resolution.update(canvas.width, canvas.height);
 
@@ -857,15 +862,18 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
             shaderSelector.remove(1);
           }
 
-          // Add loaded shaders to selector
-          Object.keys(shaders).forEach((filename) => {
-            const option = document.createElement("option");
-            option.value = filename;
-            option.textContent = shaders[filename].name;
-            if (shaders[filename].description) {
-              option.title = shaders[filename].description;
+          // Add loaded shaders to selector in manifest order
+          shaderList.forEach((shaderInfo) => {
+            const filename = shaderInfo.file;
+            if (shaders[filename]) {
+              const option = document.createElement("option");
+              option.value = filename;
+              option.textContent = shaders[filename].name;
+              if (shaders[filename].description) {
+                option.title = shaders[filename].description;
+              }
+              shaderSelector.appendChild(option);
             }
-            shaderSelector.appendChild(option);
           });
 
           // Set first shader as default
@@ -891,7 +899,11 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         x: document.getElementById("prop-x"),
         y: document.getElementById("prop-y"),
         z: document.getElementById("prop-z"),
+        rotX: document.getElementById("prop-rotX"),
+        rotY: document.getElementById("prop-rotY"),
+        rotZ: document.getElementById("prop-rotZ"),
       };
+      
 
       let shapes = [];
       let selectedIndex = -1;
@@ -920,27 +932,41 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         updateShapeList();
       }
 
+      function markShapesDirty() {
+        shapesDirty = true;
+      }
+
       function buildShape() {
         const type = shapeSelect.value;
         const newShape = {
           type,
           size: parseFloat(propInputs.size.value) || 1,
-          material: propInputs.material.value || 1,
+          material: parseFloat(propInputs.material.value) || 1,
           x: parseFloat(propInputs.x.value) || 0,
           y: parseFloat(propInputs.y.value) || 0,
           z: parseFloat(propInputs.z.value) || 0,
+          rotX: parseFloat(propInputs.rotX.value) || 0,
+          rotY: parseFloat(propInputs.rotY.value) || 0,
+          rotZ: parseFloat(propInputs.rotZ.value) || 0,
         };
-        if (shapes.length < 50) {
-        shapes.push(newShape);
-        selectShape(shapes.length - 1);
-        updateShapeList();
+        if (shapes.length < MAX_OBJECTS) {
+          shapes.push(newShape);
+          updateShapeList();
+          selectShape(shapes.length - 1);
+          markShapesDirty();
         }
       }
 
       for (const key in propInputs) {
         propInputs[key].addEventListener("input", () => {
           if (selectedIndex >= 0) {
-            shapes[selectedIndex][key] = propInputs[key].value;
+            if (["size", "x", "y", "z", "rotX", "rotY", "rotZ"].includes(key)) {
+              shapes[selectedIndex][key] = parseFloat(propInputs[key].value) || 0;
+            } else if (key === "material") {
+              shapes[selectedIndex][key] = isNaN(propInputs[key].value) ? propInputs[key].value : parseFloat(propInputs[key].value);
+            } else {
+              shapes[selectedIndex][key] = propInputs[key].value;
+            }
           }
         });
       }
