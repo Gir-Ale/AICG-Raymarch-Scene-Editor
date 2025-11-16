@@ -196,21 +196,54 @@ fn op_smooth_union_v3(a: vec4<f32>, b: vec4<f32>, k: f32) -> vec4<f32> {
     return vec4<f32>(d, col);
 }
 
+//rotation fonctions
+fn rotX(angle: f32) -> mat3x3<f32> {
+    let c = cos(angle);
+    let s = sin(angle);
+    return mat3x3<f32>(
+        vec3<f32>(1.0, 0.0, 0.0),
+        vec3<f32>(0.0, c, -s),
+        vec3<f32>(0.0, s, c)
+    );
+}
+
+fn rotY(angle: f32) -> mat3x3<f32> {
+    let c = cos(angle);
+    let s = sin(angle);
+    return mat3x3<f32>(
+        vec3<f32>(c, 0.0, s),
+        vec3<f32>(0.0, 1.0, 0.0),
+        vec3<f32>(-s, 0.0, c)
+    );
+}
+
+fn rotZ(angle: f32) -> mat3x3<f32> {
+    let c = cos(angle);
+    let s = sin(angle);
+    return mat3x3<f32>(
+        vec3<f32>(c, -s, 0.0),
+        vec3<f32>(s, c, 0.0),
+        vec3<f32>(0.0, 0.0, 1.0)
+    );
+}
+
 // Scene description - returns (distance, material color)
 fn get_dist(p: vec3<f32>) -> vec4<f32> {
-    var res = vec4<f32>(MAX_DIST, MAT_SKY_COLOR);
+  var res = vec4<f32>(MAX_DIST, MAT_SKY_COLOR);
 
-    let plane_dist = sd_plane(p, vec3<f32>(0.0, 1.0, 0.0), 0.5);
-    let ground_color = MAT_GND_COLOR(p);
-    res = op_smooth_union_v3(res, vec4<f32>(plane_dist, ground_color), 0.4);
+  let plane_dist = sd_plane(p, vec3<f32>(0.0, 1.0, 0.0), 0.5);
+  let ground_color = MAT_GND_COLOR(p);
+  res = op_smooth_union_v3(res, vec4<f32>(plane_dist, ground_color), 0.4);
 
-    for (var i = 0u; i < 20u; i = i + 1u) {
-        let obj = myScene.objects[i];
-        let d = sd_select(p - obj.position, obj);
-        res = op_smooth_union_v3(res, vec4<f32>(d, obj.material), 0.4);
-    }
+  for (var i = 0u; i < 20u; i = i + 1u) {
+      let obj = myScene.objects[i];
+      let rotation = rotZ(obj.rotation.z) * rotY(obj.rotation.y) * rotX(obj.rotation.x);
+      let localP = rotation * (p - obj.position);
+      let d = sd_select(localP, obj);
+      res = op_smooth_union_v3(res, vec4<f32>(d, obj.material), 0.4);
+  }
 
-    return res;
+  return res;
 }
 
 
