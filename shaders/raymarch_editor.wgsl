@@ -121,7 +121,7 @@ fn sd_plane(p: vec3<f32>, n: vec3<f32>, h: f32) -> f32 {
 // Select SDF based on object type
 fn sd_select(p: vec3<f32>, obj: Object) -> f32 {
     if obj.objType == 0u { return sd_box(p, obj.scale); }
-    else if obj.objType == 1u { return sd_sphere(p, obj.scale.x); } // uniform scale for sphere
+    else if obj.objType == 1u { return sd_sphere(p, (obj.scale.x + obj.scale.y + obj.scale.z)); } // uniform scale for sphere
     else if obj.objType == 2u { return sd_torus(p, vec2<f32>(obj.scale.x, obj.scale.y)); }
     else if obj.objType == 3u { return sd_plane(p, vec3<f32>(0.0,1.0,0.0), obj.scale.y); }
     return MAX_DIST;
