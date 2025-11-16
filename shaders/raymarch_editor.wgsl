@@ -1,14 +1,19 @@
 
 struct Object {
   objType: u32,
+  _padding1: u32,
+  _padding2: u32,
+  _padding3: u32,
   position: vec3<f32>,
+  _padding4: f32,
   scale: vec3<f32>,
+  _padding5: f32,
   rotation: vec3<f32>,
-  mat_id: f32,      
+  _padding6: f32,
+  material: vec3<f32>,
+  _padding7: f32,      
 };
 struct Scene {
-  numObjects: u32,
-  _padding: vec3<u32>,
   objects: array<Object, 20>,
 };
 
@@ -17,6 +22,7 @@ var<storage, read> myScene: Scene;
 
 @fragment
 fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
+
   let uv = (fragCoord.xy - uniforms.resolution * 0.5) / min(uniforms.resolution.x, uniforms.resolution.y);
 
   // Orbital Controll
@@ -42,31 +48,27 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
   let result = ray_march(cam_pos, rd);
 
   if result.x < MAX_DIST {
-    // Hit something - calculate lighting
-    let hit_pos = cam_pos + rd * result.x;
-    let normal = get_normal(hit_pos);
+      let hit_pos = cam_pos + rd * result.x;
+      let normal = get_normal(hit_pos);
 
-    // Diffuse Lighting
-    let light_pos = vec3<f32>(2.0, 5.0, -1.0);
-    let light_dir = normalize(light_pos - hit_pos);
-    let diffuse = max(dot(normal, light_dir), 0.0);
+      // Lighting
+      let light_pos = vec3<f32>(2.0, 5.0, -1.0);
+      let light_dir = normalize(light_pos - hit_pos);
+      let diffuse = max(dot(normal, light_dir), 0.0);
 
-    // Shadow Casting
-    let shadow_origin = hit_pos + normal * 0.01;
-    let shadow_result = ray_march(shadow_origin, light_dir);
-    let shadow = select(0.3, 1.0, shadow_result.x > length(light_pos - shadow_origin));
+      let shadow_origin = hit_pos + normal * 0.01;
+      let shadow_result = ray_march(shadow_origin, light_dir);
+      let shadow = select(0.3, 1.0, shadow_result.x > length(light_pos - shadow_origin));
 
-    // Phong Shading
-    let ambient = 0.2;
-    var albedo = get_material_color(result.y, hit_pos);
-    let phong = albedo * (ambient + diffuse * shadow * 0.8);
+      let ambient = 0.2;
+      let phong = result.yzw * (ambient + diffuse * shadow * 0.8);
 
-    // Exponential Fog
-    let fog = exp(-result.x * 0.02);
-    let color = mix(MAT_SKY_COLOR, phong, fog);
+      let fog = exp(-result.x * 0.02);
+      let color = mix(MAT_SKY_COLOR, phong, fog);
 
-    return vec4<f32>(gamma_correct(color), 1.0);
+      return vec4<f32>(gamma_correct(color), 1.0);
   }
+
 
   // Sky gradient
   let sky = mix(MAT_SKY_COLOR, MAT_SKY_COLOR * 0.9, uv.y * 0.5 + 0.5);
@@ -90,20 +92,11 @@ const MAT_1: f32 = 1;
 // Material Colors
 const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.7, 0.8, 0.9);
 
-const MAT_Ground_COLOR: vec3<f32> = vec3<f32>(0.8, 0.8, 0.8);
-
-const MAT_1_COLOR: vec3<f32> = vec3<f32>(0.8, 0.3, 0.3);
-
-fn get_material_color(mat_id: f32, p: vec3<f32>) -> vec3<f32> {
-  if mat_id == MAT_Ground {
+fn MAT_GND_COLOR(p: vec3<f32>) -> vec3<f32> {
     let checker = floor(p.x) + floor(p.z);
     let col1 = vec3<f32>(0.9, 0.9, 0.9);
     let col2 = vec3<f32>(0.2, 0.2, 0.2);
     return select(col2, col1, i32(checker) % 2 == 0);
-  } else if mat_id == MAT_1 {
-    return MAT_1_COLOR;
-  }
-  return vec3<f32>(0.5, 0.5, 0.5);
 }
 
 // SDF Primitives
@@ -153,52 +146,48 @@ fn op_smooth_union(d1: f32, d2: f32) -> f32 {
   return mix(d2, d1, h) - smooth_blend * h * (1.0 - h);
 }
 
-fn op_smooth_union_v3(a: vec2<f32>, b: vec2<f32>, k: f32) -> vec2<f32> {
+fn op_smooth_union_v3(a: vec4<f32>, b: vec4<f32>, k: f32) -> vec4<f32> {
     let h = clamp(0.5 + 0.5 * (b.x - a.x) / k, 0.0, 1.0);
     let d = mix(b.x, a.x, h) - k * h * (1.0 - h);
-    // Pick material ID of closer object
-    let mat_id = select(b.y, a.y, a.x < b.x);
-    return vec2<f32>(d, mat_id);
+    let col = mix(b.yzw, a.yzw, h);
+    return vec4<f32>(d, col);
 }
 
+// Scene description - returns (distance, material color)
+fn get_dist(p: vec3<f32>) -> vec4<f32> {
+    var res = vec4<f32>(MAX_DIST, MAT_SKY_COLOR);
 
-
-
-// Scene description - returns (distance, mat_id)
-fn get_dist(p: vec3<f32>) -> vec2<f32> {
-    var res = vec2<f32>(MAX_DIST, -1.0);
-
-    //ground plane
     let plane_dist = sd_plane(p, vec3<f32>(0.0, 1.0, 0.0), 0.5);
-    res = op_smooth_union_v3(res, vec2<f32>(plane_dist, MAT_Ground), 0.4);
+    let ground_color = MAT_GND_COLOR(p);
+    res = op_smooth_union_v3(res, vec4<f32>(plane_dist, ground_color), 0.4);
 
-    // Loop over objects
-  for (var i = 0u; i < min(myScene.numObjects, 20u); i = i + 1u) {
-      let obj = myScene.objects[i];
-      let d = sd_select(p - obj.position, obj);
-      res = op_smooth_union_v3(res, vec2<f32>(d, obj.mat_id), 0.4);
-  }
+    for (var i = 0u; i < 20u; i = i + 1u) {
+        let obj = myScene.objects[i];
+        let d = sd_select(p - obj.position, obj);
+        res = op_smooth_union_v3(res, vec4<f32>(d, obj.material), 0.4);
+    }
 
     return res;
 }
 
-// Ray marching function - returns (distance, mat_id)
-fn ray_march(ro: vec3<f32>, rd: vec3<f32>) -> vec2<f32> {
-  var d = 0.0;
-  var mat_id = -1.0;
 
-  for (var i = 0; i < MAX_STEPS; i++) {
-    let p = ro + rd * d;
-    let dist_mat = get_dist(p);
-    d += dist_mat.x;
-    mat_id = dist_mat.y;
+// Ray marching function - returns (distance, materrial
+fn ray_march(ro: vec3<f32>, rd: vec3<f32>) -> vec4<f32> {
+    var d = 0.0;
+    var color = MAT_SKY_COLOR;
 
-    if dist_mat.x < SURF_DIST || d > MAX_DIST {
-      break;
+    for (var i = 0; i < MAX_STEPS; i = i + 1) {
+        let p = ro + rd * d;
+        let dist_col = get_dist(p);
+        d += dist_col.x;
+        color = dist_col.yzw;
+
+        if dist_col.x < SURF_DIST || d > MAX_DIST {
+            break;
+        }
     }
-  }
 
-  return vec2<f32>(d, mat_id);
+    return vec4<f32>(d, color);
 }
 
 // Calculate normal using gradient
