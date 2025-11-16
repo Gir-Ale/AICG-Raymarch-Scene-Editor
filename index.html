@@ -579,7 +579,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
             myScene.objects[i] = {
               objType: shapeTypeToInt(s.type),
               position: [s.posX, s.posY, s.posZ],
-              scale: [s.SizeX, s.SizeY, s.SizeZ],
+              scale: [s.sizeX, s.sizeY, s.sizeZ],
               rotation: [s.rotX, s.rotY, s.rotZ],
               material: [s.matR, s.matG, s.matB],
             };
@@ -728,13 +728,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         canvas.width = Math.max(1, Math.floor(width));
         canvas.height = Math.max(1, Math.floor(height));
         canvas.style.width = container.clientWidth + "px";
-        canvas.style.height = container.clientHeight + "px";
-        canvas.height = container.clientHeight * dpr;
-        canvas.style.width = container.clientWidth + "px";
-        canvas.style.height = container.clientHeight + "px";
       }
-
-      compileBtn.onclick = () => compileShader(editor.getValue());
 
       function toggleFullscreen() {
         if (
@@ -936,31 +930,20 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
       }
 
       function selectShape(index) {
-        selectedIndex = index;
-        const shape = shapes[index];
-        if (!shape) return;
+          selectedIndex = index;
+          const shape = shapes[index];
+          if (!shape) return;
 
-        // Normalize shape keys (PosX → posX, MAT_R → matR, etc.)
-        const normalizedShape = {};
-        for (const k in shape) {
-          const nk = k.charAt(0).toLowerCase() + k.slice(1);
-          normalizedShape[nk] = shape[k];
-        }
-
-        // Put normalized values back on the shape
-        Object.assign(shape, normalizedShape);
-
-        // Sync shape → UI inputs safely
-        for (const key in propInputs) {
-          if (shape.hasOwnProperty(key)) {
-            propInputs[key].value = shape[key];
-          } else {
-            // If shape doesn't have a specific field, clear input
-            propInputs[key].value = "";
+          // Sync shape → UI inputs
+          for (const key in propInputs) {
+            if (shape.hasOwnProperty(key)) {
+              propInputs[key].value = shape[key];
+            } else {
+              propInputs[key].value = "";
+            }
           }
-        }
 
-        updateShapeList();
+          updateShapeList();
       }
 
       function markShapesDirty() {
@@ -971,12 +954,12 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         const type = shapeSelect.value;
         const newShape = {
           type,
-          sizeX: (parseFloat(propInputs.sizeX.value)|| 1),
-          sizeY: (parseFloat(propInputs.sizeY.value) || 1),
-          sizeZ: (parseFloat(propInputs.sizeZ.value) || 1),
-          posX: (parseFloat(propInputs.posX.value) || 0),
-          posY: (parseFloat(propInputs.posY.value) || 0),
-          posZ: (parseFloat(propInputs.posZ.value) || 0),
+          sizeX: (parseFloat(propInputs.sizeX.value)/1000|| 1),
+          sizeY: (parseFloat(propInputs.sizeY.value)/1000|| 1),
+          sizeZ: (parseFloat(propInputs.sizeZ.value)/1000|| 1),
+          posX: (parseFloat(propInputs.posX.value)/1000 || 0),
+          posY: (parseFloat(propInputs.posY.value)/1000 || 0),
+          posZ: (parseFloat(propInputs.posZ.value)/1000 || 0),
           rotX: parseFloat(propInputs.rotX.value) || 0,
           rotY: parseFloat(propInputs.rotY.value) || 0,
           rotZ: parseFloat(propInputs.rotZ.value) || 0,
