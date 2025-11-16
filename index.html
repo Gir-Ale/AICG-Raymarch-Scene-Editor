@@ -260,7 +260,9 @@
                     <option value="cube">Cube</option>
                     <option value="sphere">Sphere</option>
                     <option value="torus">Torus</option>
-                    <option value="plane">Plane</option>
+                    <option value="cylinder">Cylinder</option>
+                    <option value="pyramid">Pyramid</option>
+                    <option value="cone">Cone</option>
                   </select>
 
                   <button
@@ -581,7 +583,9 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
           case "cube":   return 1;
           case "sphere": return 2;
           case "torus":  return 3;
-          case "plane":  return 4;
+          case "cylinder":  return 4;
+          case "pyramid":  return 5;
+          case "cone":     return 6;
           default:       return 0; 
         }
       }

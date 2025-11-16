@@ -118,6 +118,39 @@ fn sd_plane(p: vec3<f32>, n: vec3<f32>, h: f32) -> f32 {
   return dot(p, n) + h;
 }
 
+fn sd_cylinder(p: vec3<f32>, h: f32, r: f32) -> f32 {
+    let d = vec2<f32>(length(p.xz) - r, abs(p.y) - h);
+    return length(max(d, vec2<f32>(0.0))) + min(max(d.x, d.y), 0.0);
+}
+
+fn sd_pyramid(p: vec3f, h: f32) -> f32 {
+  let m2 = h * h + 0.25;
+  var xz: vec2f = abs(p.xz);
+  xz = select(xz, xz.yx, xz[1] > xz[0]);
+  xz = xz - vec2f(0.5);
+
+  let q = vec3f(xz[1], h * p.y - 0.5 * xz[0], h * xz[0] + 0.5 * p.y);
+  let s = max(-q.x, 0.);
+  let t = clamp((q.y - 0.5 * xz[1]) / (m2 + 0.25), 0., 1.);
+
+  let a = m2 * (q.x + s) * (q.x + s) + q.y * q.y;
+  let b = m2 * (q.x + 0.5 * t) * (q.x + 0.5 * t) + (q.y - m2 * t) * (q.y - m2 * t);
+
+  let d2 = min(a, b) * step(min(q.y, -q.x * m2 - q.y * 0.5), 0.);
+  return sqrt((d2 + q.z * q.z) / m2) * sign(max(q.z, -p.y));
+}
+
+fn sd_cone(p: vec3f, h: f32, sincos: vec2f) -> f32 {
+  let q = h * vec2f(sincos.x / sincos.y, -1.);
+  let w = vec2f(length(p.xz), p.y);
+  let a = w - q * clamp(dot(w,q) / dot(q,q), 0., 1.);
+  let b = w - q * vec2f(clamp(w.x / q.x, 0., 1.), 1.);
+  let k = sign(q.y);
+  let d = min(dot(a, a), dot(b, b));
+  let s = max(k * (w.x * q.y - w.y * q.x), k * (w.y - q.y));
+  return sqrt(d) * sign(s);
+}
+
 // Select SDF based on object type
 fn sd_select(p: vec3<f32>, obj: Object) -> f32 {
     if obj.objType == 1 { return sd_box(p, obj.scale); }
@@ -125,7 +158,15 @@ fn sd_select(p: vec3<f32>, obj: Object) -> f32 {
       let radius = (obj.scale.x + obj.scale.y + obj.scale.z) / 3.0;
       return sd_sphere(p, radius); }
     else if obj.objType == 3 { return sd_torus(p, vec2<f32>(obj.scale.x, obj.scale.y)); }
-    else if obj.objType == 4 { return sd_plane(p, vec3<f32>(0.0,1.0,0.0), obj.scale.y); }
+    else if obj.objType == 4 { return sd_cylinder(p, obj.scale.y, obj.scale.x); }
+    else if obj.objType == 5 { return sd_pyramid(p, obj.scale.y); }
+    else if obj.objType == 6 
+    {
+      let h = obj.scale.y;
+      let r = obj.scale.x;
+      let sincos = vec2f(r / sqrt(h*h + r*r), h / sqrt(h*h + r*r));
+      return sd_cone(p, h, sincos); 
+    }
     return MAX_DIST;
 }
 
