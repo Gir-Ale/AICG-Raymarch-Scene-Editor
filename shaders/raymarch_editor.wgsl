@@ -1,9 +1,9 @@
 
 struct Object {
-  objType: u32,
-  _padding1: u32,
-  _padding2: u32,
-  _padding3: u32,
+  objType: f32,
+  _padding1: f32,
+  _padding2: f32,
+  _padding3: f32,
   position: vec3<f32>,
   _padding4: f32,
   scale: vec3<f32>,
@@ -120,10 +120,12 @@ fn sd_plane(p: vec3<f32>, n: vec3<f32>, h: f32) -> f32 {
 
 // Select SDF based on object type
 fn sd_select(p: vec3<f32>, obj: Object) -> f32 {
-    if obj.objType == 0u { return sd_box(p, obj.scale); }
-    else if obj.objType == 1u { return sd_sphere(p, (obj.scale.x + obj.scale.y + obj.scale.z)); } // uniform scale for sphere
-    else if obj.objType == 2u { return sd_torus(p, vec2<f32>(obj.scale.x, obj.scale.y)); }
-    else if obj.objType == 3u { return sd_plane(p, vec3<f32>(0.0,1.0,0.0), obj.scale.y); }
+    if obj.objType == 1 { return sd_box(p, obj.scale); }
+    else if obj.objType == 2 { 
+      let radius = (obj.scale.x + obj.scale.y + obj.scale.z) / 3.0;
+      return sd_sphere(p, radius); }
+    else if obj.objType == 3 { return sd_torus(p, vec2<f32>(obj.scale.x, obj.scale.y)); }
+    else if obj.objType == 4 { return sd_plane(p, vec3<f32>(0.0,1.0,0.0), obj.scale.y); }
     return MAX_DIST;
 }
 
