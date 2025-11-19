@@ -334,7 +334,6 @@
       </div>
     </div>
     <script>
-      // shaders: { [filename: string]: { content: string, name: string, description: string } }
       const shaders = {};
       let fallbackShader = `// Fragment shader - runs once per pixel
 @fragment
@@ -733,18 +732,17 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         requestAnimationFrame(render);
       }
 
+
       function resizeCanvas() {
         const container = $("canvas-container");
-        if (!container) return;
         const dpr = devicePixelRatio || 1;
-        // Prevent creating extremely large canvases that can exhaust GPU memory or crash the browser.
-        const MAX_DIMENSION = 4096; // adjust if you know your target device supports larger sizes
-        const width = Math.min(container.clientWidth * dpr, MAX_DIMENSION);
-        const height = Math.min(container.clientHeight * dpr, MAX_DIMENSION);
-        canvas.width = Math.max(1, Math.floor(width));
-        canvas.height = Math.max(1, Math.floor(height));
+        canvas.width = container.clientWidth * dpr;
+        canvas.height = container.clientHeight * dpr;
         canvas.style.width = container.clientWidth + "px";
+        canvas.style.height = container.clientHeight + "px";
       }
+
+      compileBtn.onclick = () => compileShader(editor.getValue());
 
       function toggleFullscreen() {
         if (
@@ -854,10 +852,11 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
           );
         }
 
-        // If we have a manifest, use it
-        const shaderList = manifest?.shaders ?? [];
+        // If we have a manifest, use it. Otherwise, try loading mouse.wgsl
+        const shaderList = manifest?.shaders || [
+          { file: "mouse.wgsl", name: "Mouse Interaction" },
+        ];
 
-        // Load each shader file
         for (const shaderInfo of shaderList) {
           try {
             const response = await fetch(`./shaders/${shaderInfo.file}`);
@@ -882,19 +881,16 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
           while (shaderSelector.options.length > 1) {
             shaderSelector.remove(1);
           }
+          // Add loaded shaders to selector
 
-          // Add loaded shaders to selector in manifest order
-          shaderList.forEach((shaderInfo) => {
-            const filename = shaderInfo.file;
-            if (shaders[filename]) {
-              const option = document.createElement("option");
-              option.value = filename;
-              option.textContent = shaders[filename].name;
-              if (shaders[filename].description) {
-                option.title = shaders[filename].description;
-              }
-              shaderSelector.appendChild(option);
+          Object.keys(shaders).forEach((filename) => {
+            const option = document.createElement("option");
+            option.value = filename;
+            option.textContent = shaders[filename].name;
+            if (shaders[filename].description) {
+              option.title = shaders[filename].description;
             }
+            shaderSelector.appendChild(option);
           });
 
           // Set first shader as default
@@ -1029,7 +1025,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
       buildBtn.addEventListener("click", buildShape);
 
 
-
+  
       // Main initialization
       const main = async () => {
         await loadShaders();
@@ -1040,3 +1036,4 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
     </script>
   </body>
 </html>
+
