@@ -594,11 +594,11 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
               position: [s.posX, s.posY, s.posZ],
               scale: [s.sizeX, s.sizeY, s.sizeZ],
               rotation: [s.rotX, s.rotY, s.rotZ],
-              material: materialColorToRGB(s.material),
+              materialRGB: materialColorToRGB(s.material),
             };
           } else {
             // Reset unused slots
-            myScene.objects[i] = { objType: 0, position: [0, 0, 0], scale: [1, 1, 1], rotation: [0, 0, 0], material: [0, 0, 0] };
+            myScene.objects[i] = { objType: 0, position: [0, 0, 0], scale: [1, 1, 1], rotation: [0, 0, 0], materialRGB: [0, 0, 0] };
           }
         }
       }
@@ -640,10 +640,10 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
               objectBufferData[idx + 14] = s.rotation[2];
               objectBufferData[idx + 15] = 0; // padding
 
-              // vec3<f32> material + 1 float padding
-              objectBufferData[idx + 16] = s.material[0];
-              objectBufferData[idx + 17] = s.material[1]; 
-              objectBufferData[idx + 18] = s.material[2];
+              // vec3<f32> materialRGB + 1 float padding
+              objectBufferData[idx + 16] = s.materialRGB[0];
+              objectBufferData[idx + 17] = s.materialRGB[1]; 
+              objectBufferData[idx + 18] = s.materialRGB[2];
               objectBufferData[idx + 19] = 0; // padding
             }
           }
@@ -818,7 +818,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         let loadedCount = 0;
         let manifest = null;
         try {
-          const response = await fetch(`./shaders/raymarch_editor.wgsl`);
+          const response = await fetch(`./raymarch_editor.wgsl`);
           if (response.ok) {
             const content = await response.text();
             fallbackShader = content;
@@ -871,19 +871,6 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
           const shape = shapes[index];
           if (!shape) return;
 
-          // Sync shape → UI inputs
-          for (const key in propInputs) {
-            if (shape.hasOwnProperty(key)) {
-              if (key === "mat") {
-                propInputs[key].value = shape[key] || "#ff0000";
-              } else {
-                propInputs[key].value = shape[key];
-              }
-            } else {
-              propInputs[key].value = key === "mat" ? "#ff0000" : "";
-            }
-          }
-
           updateShapeList();
       }
 
@@ -918,10 +905,10 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
           posX: (parseFloat(propInputs.posX.value)|| 0),
           posY: (parseFloat(propInputs.posY.value)|| 0),
           posZ: (parseFloat(propInputs.posZ.value)|| 0),
-          rotX: parseFloat(propInputs.rotX.value) || 0,
-          rotY: parseFloat(propInputs.rotY.value) || 0,
-          rotZ: parseFloat(propInputs.rotZ.value) || 0,
-          material: propInputs.mat.value || "#ff0000",
+          rotX: (parseFloat(propInputs.rotX.value) || 0),
+          rotY: (parseFloat(propInputs.rotY.value) || 0),
+          rotZ: (parseFloat(propInputs.rotZ.value) || 0),
+          material: (propInputs.mat.value || "#ff0000"),
         };
         if (shapes.length < MAX_OBJECTS) {
           shapes.push(newShape);
@@ -934,9 +921,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
       for (const key in propInputs) {
         propInputs[key].addEventListener("input", () => {
           if (selectedIndex >= 0) {
-            if (key === "mat") {
-              shapes[selectedIndex][key] = propInputs[key].value;
-            } else if (["sizeX","sizeY","sizeZ", "posX", "posY", "posZ", "rotX", "rotY", "rotZ"].includes(key)) {
+            if (["sizeX","sizeY","sizeZ", "posX", "posY", "posZ", "rotX", "rotY", "rotZ"].includes(key)) {
               shapes[selectedIndex][key] = parseFloat(propInputs[key].value) || 0;
             } else {
               shapes[selectedIndex][key] = propInputs[key].value;
@@ -945,11 +930,8 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
           }
         });
       }
-
       buildBtn.addEventListener("click", buildShape);
 
-
-  
       // Main initialization
       const main = async () => {
         await loadShaders();
