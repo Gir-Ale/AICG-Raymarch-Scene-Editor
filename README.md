@@ -2,7 +2,7 @@
 
 <img width="670" height="600" alt="Capture d'écran 2025-11-19 174203" src="https://github.com/user-attachments/assets/c597ae45-066b-4832-9c30-8eb188752cd0" />
 
-**Demo:** **http://localhost:8000/index.html**
+**Demo:** **https://gir-ale.github.io/AICG-Raymarch-Scene-Editor/**
 
 The Raymarch Scene Editor is a web application that allows users to build complex 3D structures using geometric shapes.  
 You can create objects, edit their position, size, rotation, and color, and combine them dynamically with other shapes.
