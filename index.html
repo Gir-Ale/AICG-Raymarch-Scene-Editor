@@ -383,6 +383,7 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
 
       let objectBuffer;  
       let shapesDirty = true;
+      let selectedIndex = -1;
 
       const $ = (id) => document.getElementById(id);
       const canvas = $("canvas");
@@ -394,6 +395,8 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
       const canvasContainer = $("canvas-container");
       const editorContainer = $("editor-container");
       const shaderSelector = $("shader-selector");
+
+
 
       const MAX_OBJECTS = 20;
       // Each object uses 20 floats: 4 for objType (u32 + 3 padding), 4 for position (vec3 + 1 padding), 4 for scale (vec3 + 1 padding), 4 for rotation (vec3 + 1 padding), 4 for material (vec3 + 1 padding)
@@ -475,7 +478,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
 
       const uniformsStruct = `struct Uniforms {
   resolution: vec2<f32>, time: f32, deltaTime: f32, mouse: vec4<f32>, frame: u32,
-  _padding: u32, _padding2: u32, _padding3: u32,
+  _padding: u32, _padding2: u32,_padding3: u32,
 }
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;`;
 
@@ -603,7 +606,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         }
       }
 
-      const objectBufferData = new Float32Array(objectBufferSize)
+      const objectBufferData = new Float32Array(objectBufferSize);
 
       function fillObjectBufferOnce() {
           // Clear buffer
@@ -619,7 +622,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
               // u32 objType + 3x padding
               objectBufferData[idx + 0] = s.objType;
               objectBufferData[idx + 1] = 0; // padding
-              objectBufferData[idx + 2] = 0; // padding
+              objectBufferData[idx + 2] = selectedIndex; // padding
               objectBufferData[idx + 3] = 0; // padding
 
               // vec3<f32> position + 1 float padding
@@ -850,7 +853,6 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
       
 
       let shapes = [];
-      let selectedIndex = -1;
 
       function updateShapeList() {
         shapeList.innerHTML = "";
@@ -921,7 +923,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
 
       for (const key in propInputs) {
         const handler = () => {
-          if (selectedIndex < 0) return;
+          if (selectedIndex < 0 ) return;
           const shape = shapes[selectedIndex];
 
           if (["sizeX","sizeY","sizeZ","posX","posY","posZ","rotX","rotY","rotZ"].includes(key)) {

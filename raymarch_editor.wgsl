@@ -2,16 +2,16 @@
 struct Object {
   objType: f32,
   _padding1: f32,
+  objIndex: u32,
   _padding2: f32,
-  _padding3: f32,
   position: vec3<f32>,
-  _padding4: f32,
+  _padding3: f32,
   scale: vec3<f32>,
-  _padding5: f32,
+  _padding4: f32,
   rotation: vec3<f32>,
-  _padding6: f32,
+  _padding5: f32,
   material: vec3<f32>,
-  _padding7: f32,      
+  _padding6: f32,      
 };
 
 struct Scene {
@@ -31,9 +31,22 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
   let yaw = uniforms.time * 0.1; // Auto-orbits around the center
 
   // Camera Coords
-  let cam_dist = 4.0; // Distance from the target
-  let cam_target = vec3<f32>(0.0, 0.0, 0.0);
-  let cam_pos = vec3<f32>(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * cam_dist;
+  var cam_dist = 4.0; // Distance from the target
+  var cam_target = vec3<f32>(0.0, 0.0, 0.0);
+  var target_obj_index = -1;
+  for (var i = 0u; i < 20u; i = i + 1u) {
+      let obj = myScene.objects[i];
+      if (f32(obj.objIndex) > -1.0) {
+          target_obj_index = i32(i);
+          break;
+      }
+  }
+  
+  if (target_obj_index > -1) {
+      cam_target = myScene.objects[target_obj_index].position;
+  }
+  
+  let cam_pos = cam_target + vec3<f32>(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * cam_dist;
 
   // Camera Matrix
   let cam_forward = normalize(cam_target - cam_pos);
@@ -49,25 +62,25 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
   let result = ray_march(cam_pos, rd);
 
   if result.x < MAX_DIST {
-      let hit_pos = cam_pos + rd * result.x;
-      let normal = get_normal(hit_pos);
+    let hit_pos = cam_pos + rd * result.x;
+    let normal = get_normal(hit_pos);
 
-      // Lighting
-      let light_pos = vec3<f32>(2.0, 5.0, -1.0);
-      let light_dir = normalize(light_pos - hit_pos);
-      let diffuse = max(dot(normal, light_dir), 0.0);
+    // Lighting
+    let light_pos = vec3<f32>(2.0, 5.0, -1.0);
+    let light_dir = normalize(light_pos - hit_pos);
+    let diffuse = max(dot(normal, light_dir), 0.0);
 
-      let shadow_origin = hit_pos + normal * 0.01;
-      let shadow_result = ray_march(shadow_origin, light_dir);
-      let shadow = select(0.3, 1.0, shadow_result.x > length(light_pos - shadow_origin));
+    let shadow_origin = hit_pos + normal * 0.01;
+    let shadow_result = ray_march(shadow_origin, light_dir);
+    let shadow = select(0.3, 1.0, shadow_result.x > length(light_pos - shadow_origin));
 
-      let ambient = 0.2;
-      let phong = result.yzw * (ambient + diffuse * shadow * 0.8);
+    let ambient = 0.2;
+    let phong = result.yzw * (ambient + diffuse * shadow * 0.8);
 
-      let fog = exp(-result.x * 0.02);
-      let color = mix(MAT_SKY_COLOR, phong, fog);
+    let fog = exp(-result.x * 0.02);
+    let color = mix(MAT_SKY_COLOR, phong, fog);
 
-      return vec4<f32>(gamma_correct(color), 1.0);
+    return vec4<f32>(gamma_correct(color), 1.0);
   }
 
 
