@@ -173,17 +173,6 @@
               </svg>
               <span>[WGSL] Fragment Shader</span>
             </div>
-            <select
-              id="shader-selector"
-              class="px-2 py-1 text-sm rounded"
-              style="
-                background: #3c3836;
-                color: #ebdbb2;
-                border: 1px solid #665c54;
-              "
-            >
-              <option value="">-- Select Shader --</option>
-            </select>
           </div>
 
           <div class="w-full h-px" style="background-color: #665c54; opacity: 0.5"></div>
@@ -334,7 +323,6 @@
       </div>
     </div>
     <script>
-      const shaders = {};
       let fallbackShader = `// Fragment shader - runs once per pixel
 @fragment
 fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
@@ -825,84 +813,20 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
       });
       window.addEventListener("resize", resizeCanvas);
 
-      // Handle shader selection
-      shaderSelector.addEventListener("change", (e) => {
-        const selectedShader = e.target.value;
-        if (selectedShader && shaders[selectedShader]) {
-          editor.setValue(shaders[selectedShader].content);
-          compileShader(shaders[selectedShader].content);
-        }
-      });
-
       // Load shaders from files
       async function loadShaders() {
         let loadedCount = 0;
         let manifest = null;
-
-        // Try to load the manifest file
         try {
-          const manifestResponse = await fetch("./shaders/manifest.json");
-          if (manifestResponse.ok) {
-            manifest = await manifestResponse.json();
-            console.log("Loaded shader manifest");
-          }
-        } catch (err) {
-          console.log(
-            "No manifest found, will try loading mouse.wgsl directly",
-          );
-        }
-
-        // If we have a manifest, use it. Otherwise, try loading mouse.wgsl
-        const shaderList = manifest?.shaders || [
-          { file: "mouse.wgsl", name: "Mouse Interaction" },
-        ];
-
-        for (const shaderInfo of shaderList) {
-          try {
-            const response = await fetch(`./shaders/${shaderInfo.file}`);
-            if (response.ok) {
-              const content = await response.text();
-              shaders[shaderInfo.file] = {
-                content: content,
-                name: shaderInfo.name || shaderInfo.file.replace(".wgsl", ""),
-                description: shaderInfo.description || "",
-              };
-              loadedCount++;
-              console.log(`Loaded shader: ${shaderInfo.file}`);
-            }
-          } catch (err) {
-            console.error(`Failed to load shader ${shaderInfo.file}:`, err);
-          }
-        }
-
-        // Populate shader selector after loading
-        if (loadedCount > 0) {
-          // Clear existing options except the first one
-          while (shaderSelector.options.length > 1) {
-            shaderSelector.remove(1);
-          }
-          // Add loaded shaders to selector
-
-          Object.keys(shaders).forEach((filename) => {
-            const option = document.createElement("option");
-            option.value = filename;
-            option.textContent = shaders[filename].name;
-            if (shaders[filename].description) {
-              option.title = shaders[filename].description;
-            }
-            shaderSelector.appendChild(option);
-          });
-
-          // Set first shader as default
-          const firstShader = Object.keys(shaders)[0];
-          if (firstShader) {
-            fallbackShader = shaders[firstShader].content;
+          const response = await fetch(`./shaders/raymarch_editor.wgsl`);
+          if (response.ok) {
+            const content = await response.text();
+            fallbackShader = content;
             editor.setValue(fallbackShader);
-            shaderSelector.value = firstShader;
             compileShader(fallbackShader);
           }
-        } else {
-          console.log("No shaders loaded, using fallback");
+        } catch (err) {
+          console.error(`Failed to load shader ${shaderInfo.file}:`, err);
         }
       }
 
