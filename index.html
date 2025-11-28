@@ -939,6 +939,50 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
 
       buildBtn.addEventListener("click", buildShape);
 
+      //Override selectShape to populate the editor controls with the selected object's values 
+      window.selectShape = function (index) {
+        selectedIndex = index;
+        const shape = shapes[index];
+        if (!shape) {
+          selectedIndex = -1;
+          // Reset inputs to defaults when no shape
+          propInputs.sizeX.value = 1;
+          propInputs.sizeY.value = 1;
+          propInputs.sizeZ.value = 1;
+          propInputs.posX.value = 0;
+          propInputs.posY.value = 0;
+          propInputs.posZ.value = 0;
+          propInputs.rotX.value = 0;
+          propInputs.rotY.value = 0;
+          propInputs.rotZ.value = 0;
+          propInputs.mat.value = "#ff0000";
+          updateShapeList();
+          return;
+        }
+
+        // Populate inputs with the shape's values
+        propInputs.sizeX.value = shape.sizeX || 1;
+        propInputs.sizeY.value = shape.sizeY || 1;
+        propInputs.sizeZ.value = shape.sizeZ || 1;
+
+        propInputs.posX.value = shape.posX || 0;
+        propInputs.posY.value = shape.posY || 0;
+        propInputs.posZ.value = shape.posZ || 0;
+
+        propInputs.rotX.value = shape.rotX || 0;
+        propInputs.rotY.value = shape.rotY || 0;
+        propInputs.rotZ.value = shape.rotZ || 0;
+
+        propInputs.mat.value = shape.material || "#ff0000";
+
+        updateShapeList();
+
+        // Scroll the selected list item into view (list is rendered in reverse)
+        const liIndex = shapes.length - 1 - index;
+        const li = shapeList.children[liIndex];
+        if (li) li.scrollIntoView({ block: "nearest" });
+      };
+
       // Main initialization
       const main = async () => {
         await loadShaders();
