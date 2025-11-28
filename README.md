@@ -2,7 +2,7 @@
 
 
 
-\*\*Demo:\*\* https://gir-ale.github.io/AICG-Raymarch-Scene-Editor/
+\*\*Demo:\*\* **http://localhost:8000/index.html**
 
 
 

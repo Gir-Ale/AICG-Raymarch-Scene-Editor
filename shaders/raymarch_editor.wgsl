@@ -13,6 +13,7 @@ struct Object {
   material: vec3<f32>,
   _padding7: f32,      
 };
+
 struct Scene {
   objects: array<Object, 20>,
 };
