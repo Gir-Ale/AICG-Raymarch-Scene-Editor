@@ -892,6 +892,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         selectedIndex = -1;
 
         updateShapeList();
+        
         shapesDirty = true;
       });
 
@@ -919,17 +920,23 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
       }
 
       for (const key in propInputs) {
-        propInputs[key].addEventListener("input", () => {
-          if (selectedIndex >= 0) {
-            if (["sizeX","sizeY","sizeZ", "posX", "posY", "posZ", "rotX", "rotY", "rotZ"].includes(key)) {
-              shapes[selectedIndex][key] = parseFloat(propInputs[key].value) || 0;
-            } else {
-              shapes[selectedIndex][key] = propInputs[key].value;
-            }
-            shapesDirty = true;
+        const handler = () => {
+          if (selectedIndex < 0) return;
+          const shape = shapes[selectedIndex];
+
+          if (["sizeX","sizeY","sizeZ","posX","posY","posZ","rotX","rotY","rotZ"].includes(key)) {
+            shape[key] = parseFloat(propInputs[key].value) || 0;
+          } else {
+            shape[key] = propInputs[key].value;
           }
-        });
+          shape.material = propInputs.mat.value || "#ff0000"; //always update material
+          shapesDirty = true;
+        };
+
+        propInputs[key].addEventListener("input", handler);
+        propInputs[key].addEventListener("change", handler);
       }
+
       buildBtn.addEventListener("click", buildShape);
 
       // Main initialization
