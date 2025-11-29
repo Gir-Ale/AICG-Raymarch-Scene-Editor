@@ -380,6 +380,7 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
       let mouseDown = false;
       let isPanelOpen = true;
       let isFullscreen = false;
+      let frequency = 16; // the maximum frequency at wich the object buffer is updated in Hz
 
       let objectBuffer;  
       let shapesDirty = true;
@@ -676,9 +677,12 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
         if (shapesDirty) {
-          updateMySceneFromShapes();
-          fillObjectBufferOnce();
-          shapesDirty = false;
+          if (currentTime%( 1/ frequency) ==0 )
+          {
+            updateMySceneFromShapes();
+            fillObjectBufferOnce();
+            shapesDirty = false;
+          }
         }
 
         const val = uniforms.resolution.update(canvas.width, canvas.height);
