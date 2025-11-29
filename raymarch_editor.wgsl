@@ -1,17 +1,17 @@
 
 struct Object {
   objType: f32,
-  _padding1: f32,
-  _padding2: f32,
-  _padding3: f32,
-  position: vec3<f32>,
   _padding4: f32,
-  scale: vec3<f32>,
   _padding5: f32,
-  rotation: vec3<f32>,
   _padding6: f32,
+  position: vec3<f32>,
+  _padding7: f32,
+  scale: vec3<f32>,
+  _padding8: f32,
+  rotation: vec3<f32>,
+  _padding9: f32,
   material: vec3<f32>,
-  _padding7: f32,      
+  _padding10: f32,      
 };
 
 struct Scene {
