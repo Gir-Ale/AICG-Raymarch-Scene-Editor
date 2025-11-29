@@ -1,7 +1,5 @@
 ## Raymarch Scene Editor
 
-<img width="670" height="600" alt="Capture d'écran 2025-11-19 174203" src="https://github.com/user-attachments/assets/c597ae45-066b-4832-9c30-8eb188752cd0" />
-
 **Demo:** **https://gir-ale.github.io/AICG-Raymarch-Scene-Editor/**
 
 The Raymarch Scene Editor is a web application that allows users to build complex 3D structures using geometric shapes.  
@@ -43,3 +41,6 @@ To host the app locally:
      **http://localhost:8000/index.html** to access the web app.
 
 ---
+
+<img width="670" height="600" alt="Capture d'écran 2025-11-19 174203" src="https://github.com/user-attachments/assets/c597ae45-066b-4832-9c30-8eb188752cd0" />
+<img width="512" height="655" alt="Capture d&#39;écran 2025-11-28 140600" src="https://github.com/user-attachments/assets/62076e18-2d6e-4f97-ab97-a25246158985" />
