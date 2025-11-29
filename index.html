@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -677,8 +678,11 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         uniformData[11] = 0;
         device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
+
         if (shapesDirty && currentTime - lastObjectUpdate >= (1000 / frequency)) {
           updateMySceneFromShapes();
+          console.log(" = number of shape updates"); //debug value of shape updates
+
           fillObjectBufferOnce();
           shapesDirty = false;
           lastObjectUpdate = currentTime;
@@ -996,4 +1000,3 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
     </script>
   </body>
 </html>
-
