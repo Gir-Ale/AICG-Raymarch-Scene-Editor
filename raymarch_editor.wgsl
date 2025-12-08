@@ -28,7 +28,7 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
 
   // Orbital Controll
   let pitch = clamp((uniforms.mouse.y / uniforms.resolution.y), 0.05, 1.5);
-  let yaw = -clamp((uniforms.mouse.x / uniforms.resolution.x), 0.05, 1.5)+uniforms.time * 0.1; ; 
+  let yaw = -clamp((uniforms.mouse.x / uniforms.resolution.x), 0.05, 1.5)+uniforms.time * 0.1; 
 
   // Camera Coords
   let cam_dist = 4.0; // Distance from the target
