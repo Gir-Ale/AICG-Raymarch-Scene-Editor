@@ -28,7 +28,8 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
 
   // Orbital Controll
   let pitch = clamp((uniforms.mouse.y / uniforms.resolution.y), 0.05, 1.5);
-  let yaw = uniforms.time * 0.1; // Auto-orbits around the center
+  let yaw = -clamp((uniforms.mouse.x / uniforms.resolution.x), 0.05, 1.5) ;  
+  //let yaw = uniforms.time * 0.1; // Auto-orbits around the center
 
   // Camera Coords
   let cam_dist = 4.0; // Distance from the target
@@ -93,11 +94,14 @@ const MAT_1: f32 = 1;
 // Material Colors
 const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.7, 0.8, 0.9);
 
+fn hash33(p: vec3<f32>) -> f32 {
+    let dot_val = dot(p, vec3<f32>(127.1, 311.7, 74.7));
+    return fract(sin(dot_val) * 43758.5453123);
+}
+
 fn MAT_GND_COLOR(p: vec3<f32>) -> vec3<f32> {
-    let checker = floor(p.x) + floor(p.z);
-    let col1 = vec3<f32>(0.9, 0.9, 0.9);
-    let col2 = vec3<f32>(0.2, 0.2, 0.2);
-    return select(col2, col1, i32(checker) % 2 == 0);
+    let n = hash33(floor(p));
+    return vec3<f32>(n, n, n);
 }
 
 // SDF Primitives
