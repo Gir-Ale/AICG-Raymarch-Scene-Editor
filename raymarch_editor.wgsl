@@ -87,7 +87,7 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
 
 // Gamma Correction
 fn gamma_correct(color: vec3<f32>) -> vec3<f32> {
-  return pow(color, vec3<f32>(1.0 / 2.2));
+  return pow(color, vec3<f32>(1.0 / 1.5));
 }
 
 // Constants
@@ -96,7 +96,7 @@ const SURF_DIST: f32 = 0.007;
 const MAX_STEPS: i32 = 128;
 
 // Material Colors
-const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.2, 0.2, 0.2);
+const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.4, 0.5, 0.7);
 
 fn hash33(p: vec3<f32>) -> f32 {
     let dot_val = dot(p, vec3<f32>(127.1, 311.7, 74.7));
