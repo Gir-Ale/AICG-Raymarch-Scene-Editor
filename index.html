@@ -689,7 +689,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
 
           yaw   -= clamp((dx*speedf / canvas.width), -3.14, 3.14);
           pitch += clamp((dy*speedf / canvas.height), -3.14, 3.14);
-
+          pitch = clamp(pitch, 0.0, 3.14); // Limit pitch to avoid flipping and going through the ground
           lastMouseX = e.clientX;
           lastMouseY = e.clientY;
       });
