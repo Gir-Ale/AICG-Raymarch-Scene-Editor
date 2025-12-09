@@ -696,13 +696,13 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
           lastMouseY = e.clientY;
       });
 
+      const camTarget = { x: 0, y: 0, z: 0 };
 
       function render() {
         if (!pipeline) return;
         const currentTime = performance.now();
         const deltaTime = (currentTime - lastFrameTime) / 1000;
         const elapsedTime = (currentTime - startTime) / 1000;
-        const camTarget = { x: 0, y: 0, z: 0 };
 
         uniformData[0] = canvas.width;
         uniformData[1] = canvas.height;
@@ -912,15 +912,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
             shapeList.appendChild(li);
         }
       }
-
-      function selectShape(index) {
-          selectedIndex = index;
-          const shape = shapes[index];
-          if (!shape) return;
-
-          updateShapeList();
-      }
-
+      
       removeBtn.addEventListener("click", () => {
         if (selectedIndex < 0 || !shapes[selectedIndex]) return;
 
@@ -989,6 +981,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
       //Override selectShape to populate the editor controls with the selected object's values 
       window.selectShape = function (index) {
         selectedIndex = index;
+
         const shape = shapes[index];
         if (!shape) {
           selectedIndex = -1;
@@ -1020,7 +1013,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         propInputs.rotY.value = shape.rotY || 0;
         propInputs.rotZ.value = shape.rotZ || 0;
 
-        propInputs.mat.value = shape.material || "#ff0000";
+        propInputs.mat.value = shape.material || "#ff0000"; 
 
         updateShapeList();
 
