@@ -912,7 +912,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
             shapeList.appendChild(li);
         }
       }
-      
+
       removeBtn.addEventListener("click", () => {
         if (selectedIndex < 0 || !shapes[selectedIndex]) return;
 

@@ -19,7 +19,7 @@ You can create objects, edit their position, size, rotation, and color, and comb
 - Ability to edit the WGSL shader and recompile the scene instantly.
 
 ### **Full camera controls**
-- Hold left click and move the mouse up-down, left-right to change the position on the orbit of the selected object.
+- Hold left-click and move the mouse up-down, left-right to change the position on the orbit.
 - Use the scroll wheel to change the distance of the camera on the orbit.
 
 ---
