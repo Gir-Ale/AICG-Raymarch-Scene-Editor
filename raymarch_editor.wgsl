@@ -1,3 +1,16 @@
+struct Uniforms {
+  resolution: vec2<f32>,
+  camDist: f32,
+  pitch: f32,
+  yaw: f32,
+  _padding0: u32,
+  camTarget: vec3<f32>,
+  _padding1: u32,
+  _padding2: u32,
+  _padding3: u32,
+}
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
 
 struct Object {
   objType: f32,
@@ -27,12 +40,16 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
   let uv = (fragCoord.xy - uniforms.resolution * 0.5) / min(uniforms.resolution.x, uniforms.resolution.y);
 
   // Orbital Controll
-  let pitch = clamp((uniforms.mouse.y / uniforms.resolution.y), 0.05, 1.5);
-  let yaw = -clamp((uniforms.mouse.x / uniforms.resolution.x), 0.05, 1.5)+uniforms.time * 0.1; 
+  //let pitch = clamp((uniforms.mouse.y / uniforms.resolution.y), 0.05, 1.5);
+  //let yaw = -clamp((uniforms.mouse.x / uniforms.resolution.x), 0.05, 1.5)+uniforms.time * 0.1; 
 
   // Camera Coords
-  let cam_dist = 4.0; // Distance from the target
-  let cam_target = vec3<f32>(0.0, 0.0, 0.0);
+  //let cam_dist = 5.0; // Distance from the target
+  //let cam_target = vec3<f32>(0.0, 0.0, 0.0);
+  let pitch = uniforms.pitch;
+  let yaw = uniforms.yaw;
+  let cam_dist = uniforms.camDist;
+  let cam_target = uniforms.camTarget;
   let cam_pos = vec3<f32>(sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch)) * cam_dist;
 
   // Camera Matrix

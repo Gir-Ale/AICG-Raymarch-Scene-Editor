@@ -476,11 +476,6 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
   return vec4<f32>(pos[vertexIndex], 0.0, 1.0);
 }`;
 
-      const uniformsStruct = `struct Uniforms {
-  resolution: vec2<f32>, time: f32, deltaTime: f32, mouse: vec4<f32>, frame: u32,
-  _padding: u32, _padding2: u32, _padding3: u32,
-}
-@group(0) @binding(0) var<uniform> uniforms: Uniforms;`;
 
       async function initWebGPU() {
         if (!navigator.gpu)
@@ -508,10 +503,10 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
         const start = performance.now();
         try {
           errorMsg.classList.add("hidden");
-          const code = vertexShader + "\n" + uniformsStruct + "\n" + fragmentCode; // prettier-ignore
+          const code = vertexShader + "\n" + fragmentCode; // prettier-ignore
           const shaderModule = device.createShaderModule({ code });
           const info = await shaderModule.getCompilationInfo();
-          const lineOffset = (vertexShader + "\n" + uniformsStruct).split("\n").length; // prettier-ignore
+          const lineOffset = (vertexShader).split("\n").length; // prettier-ignore
           const errors = info.messages
             .filter((m) => m.type === "error")
             .map((m) => {
@@ -654,25 +649,34 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
           // Upload to GPU
           device.queue.writeBuffer(objectBuffer, 0, objectBufferData);
       }
+    
 
 
       // Preallocate uniform data buffer
       const uniformData = new Float32Array(12);
+
+      // Helper function to clamp values
+      const clamp = (val, min, max) => Math.min(Math.max(val, min), max)
 
       function render() {
         if (!pipeline) return;
         const currentTime = performance.now();
         const deltaTime = (currentTime - lastFrameTime) / 1000;
         const elapsedTime = (currentTime - startTime) / 1000;
+        const camDistance = 5.0;
+        const camTarget = { x: 0, y: 0, z: 0 };
+        const pitch = clamp((mouseY/ canvas.height), 0.05, 1.5);
+        const yaw = -clamp((mouseX / canvas.width), 0.05, 1.5); 
+
         uniformData[0] = canvas.width;
         uniformData[1] = canvas.height;
-        uniformData[2] = elapsedTime;
-        uniformData[3] = deltaTime;
-        uniformData[4] = mouseX;
-        uniformData[5] = mouseY;
-        uniformData[6] = mouseDown ? 1 : 0;
-        uniformData[7] = 0;
-        uniformData[8] = frameCount;
+        uniformData[2] = camDistance;
+        uniformData[3] = pitch;
+        uniformData[4] = yaw;
+        uniformData[5] = 0;
+        uniformData[6] = camTarget.x
+        uniformData[7] = camTarget.y;
+        uniformData[8] = camTarget.z;
         uniformData[9] = 0;
         uniformData[10] = 0;
         uniformData[11] = 0;
