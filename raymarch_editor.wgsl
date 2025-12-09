@@ -96,7 +96,7 @@ const SURF_DIST: f32 = 0.007;
 const MAX_STEPS: i32 = 128;
 
 // Material Colors
-const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.6, 0.7, 1.2);
+const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.2, 0.2, 0.2);
 
 fn hash33(p: vec3<f32>) -> f32 {
     let dot_val = dot(p, vec3<f32>(127.1, 311.7, 74.7));
