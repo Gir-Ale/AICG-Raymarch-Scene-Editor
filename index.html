@@ -381,7 +381,7 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
       let mouseDown = false;
       let isPanelOpen = true;
       let isFullscreen = false;
-      let frequency = 16; // the maximum frequency at wich the object buffer is updated in Hz
+      let frequency = 64; // the maximum frequency at wich the object buffer is updated in Hz
       let lastObjectUpdate = 0;
       let objectBuffer;  
       let shapesDirty = true;
@@ -659,7 +659,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
 
       //zoom control
       let camDistance = 5.0; 
-      window.addEventListener("wheel", (e) => { 
+      canvas.addEventListener("wheel", (e) => { 
       camDistance += e.deltaY * 0.01; //zoom speed
       camDistance = clamp(camDistance, 1, 50)});
 
