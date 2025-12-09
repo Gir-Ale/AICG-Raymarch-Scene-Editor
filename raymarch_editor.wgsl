@@ -38,7 +38,6 @@ var<storage, read> myScene: Scene;
 fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
 
   let uv = (fragCoord.xy - uniforms.resolution * 0.5) / min(uniforms.resolution.x, uniforms.resolution.y);
-
   let pitch = uniforms.pitch;
   let yaw = uniforms.yaw;
   let cam_dist = uniforms.camDist;
