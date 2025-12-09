@@ -242,14 +242,14 @@ fn get_dist(p: vec3<f32>) -> vec4<f32> {
 
   let plane_dist = sd_plane(p, vec3<f32>(0.0, 1.0, 0.0), 0.5);
   let ground_color = MAT_GND_COLOR(p);
-  res = op_smooth_union_v3(res, vec4<f32>(plane_dist, ground_color), 0.4);
+  res = op_smooth_union_v3(res, vec4<f32>(plane_dist, ground_color), 0.3);
 
   for (var i = 0u; i < 20u; i = i + 1u) {
       let obj = myScene.objects[i];
       let rotation = rotZ(obj.rotation.z) * rotY(obj.rotation.y) * rotX(obj.rotation.x);
       let localP = rotation * (p - obj.position);
       let d = sd_select(localP, obj);
-      res = op_smooth_union_v3(res, vec4<f32>(d, obj.material), 0.4);
+      res = op_smooth_union_v3(res, vec4<f32>(d, obj.material), 0.3);
   }
 
   return res;
