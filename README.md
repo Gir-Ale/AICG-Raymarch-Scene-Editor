@@ -48,6 +48,6 @@ To host the app locally:
 
 <img width="670" h<img width="1919" height="867" alt="Capture d&#39;écran 2025-12-09 195720" src="https://github.com/user-attachments/assets/47d7d3b4-6058-4462-bcbd-f102969948d0" />
 
-eight="600" alt="Capture d'écran 2025-11-19 174203" src="https://github.com/user-attachments/assets/c597ae45-066b-4832-9c30-8eb188752cd0" />
+<img width="670" height="600" alt="Capture d&#39;écran 2025-11-19 174203" src="https://github.com/user-attachments/assets/53bb40b4-6adb-47c4-8212-8b123d08895f" />
 
 <img width="512" height="655" alt="Capture d&#39;écran 2025-11-28 140600" src="https://github.com/user-attachments/assets/62076e18-2d6e-4f97-ab97-a25246158985" />
