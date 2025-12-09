@@ -95,10 +95,6 @@ const MAX_DIST: f32 = 60.0;
 const SURF_DIST: f32 = 0.007;
 const MAX_STEPS: i32 = 128;
 
-// Material Types
-const MAT_Ground: f32 = 0;
-const MAT_1: f32 = 1;
-
 // Material Colors
 const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.6, 0.7, 1.2);
 
