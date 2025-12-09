@@ -91,9 +91,9 @@ fn gamma_correct(color: vec3<f32>) -> vec3<f32> {
 }
 
 // Constants
-const MAX_DIST: f32 = 100.0;
-const SURF_DIST: f32 = 0.001;
-const MAX_STEPS: i32 = 256;
+const MAX_DIST: f32 = 60.0;
+const SURF_DIST: f32 = 0.007;
+const MAX_STEPS: i32 = 128;
 
 // Material Types
 const MAT_Ground: f32 = 0;
