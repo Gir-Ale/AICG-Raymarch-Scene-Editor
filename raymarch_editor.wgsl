@@ -73,7 +73,7 @@ fn fs_main(@builtin(position) fragCoord: vec4<f32>) -> @location(0) vec4<f32> {
       let ambient = 0.2;
       let phong = result.yzw * (ambient + diffuse * shadow * 0.8);
 
-      let fog = exp(-result.x * 0.02);
+      let fog = exp(-result.x * 0.015);
       let color = mix(MAT_SKY_COLOR, phong, fog);
 
       return vec4<f32>(gamma_correct(color), 1.0);
@@ -100,7 +100,7 @@ const MAT_Ground: f32 = 0;
 const MAT_1: f32 = 1;
 
 // Material Colors
-const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.7, 0.8, 0.9);
+const MAT_SKY_COLOR: vec3<f32> = vec3<f32>(0.6, 0.7, 1.2);
 
 fn hash33(p: vec3<f32>) -> f32 {
     let dot_val = dot(p, vec3<f32>(127.1, 311.7, 74.7));
