@@ -658,15 +658,51 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f
       // Helper function to clamp values
       const clamp = (val, min, max) => Math.min(Math.max(val, min), max)
 
+      //zoom control
+      let camDistance = 5.0; 
+      window.addEventListener("wheel", (e) => { 
+      camDistance += e.deltaY * 0.01; //zoom speed
+      camDistance = clamp(camDistance, 1, 50)});
+
+      //pitch and yaw control
+      let isDragging = false;
+      let lastMouseX = 0;
+      let lastMouseY = 0;
+      let pitch = 0;
+      let yaw = 0;
+      const speedf = 4.0; // mouse sensitivity
+
+      canvas.addEventListener("mousedown", (e) => {
+          if (e.button === 0) {
+              isDragging = true;
+              lastMouseX = e.clientX;
+              lastMouseY = e.clientY;
+          }
+      });
+
+      window.addEventListener("mouseup", () => {
+          isDragging = false;
+      });
+
+      canvas.addEventListener("mousemove", (e) => {
+          if (!isDragging) return;
+          const dx = e.clientX - lastMouseX;
+          const dy = e.clientY - lastMouseY;
+
+          yaw   -= clamp((dx*speedf / canvas.width), -3.14, 3.14);
+          pitch += clamp((dy*speedf / canvas.height), -3.14, 3.14);
+
+          lastMouseX = e.clientX;
+          lastMouseY = e.clientY;
+      });
+
+
       function render() {
         if (!pipeline) return;
         const currentTime = performance.now();
         const deltaTime = (currentTime - lastFrameTime) / 1000;
         const elapsedTime = (currentTime - startTime) / 1000;
-        const camDistance = 5.0;
         const camTarget = { x: 0, y: 0, z: 0 };
-        const pitch = clamp((mouseY/ canvas.height), 0.05, 1.5);
-        const yaw = -clamp((mouseX / canvas.width), 0.05, 1.5); 
 
         uniformData[0] = canvas.width;
         uniformData[1] = canvas.height;
